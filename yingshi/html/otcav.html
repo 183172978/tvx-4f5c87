@@ -1,0 +1,203 @@
+<!doctype html><html lang=zh-CN><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=theme-color content=#000>
+<title>OTC VIDEO</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#000;--surface:#0d0d0d;--surface2:#161616;--border:rgba(255,255,255,.07);--text:#e8e8e8;--muted:#555;--accent:#e8195a;--accent2:#ff6b9d;--radius:14px}
+html{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,'Noto Sans SC',sans-serif}
+body{min-height:100vh;background:var(--bg)}
+img{display:block;max-width:100%}
+button{border:none;font:inherit;background:0 0;color:inherit;cursor:pointer;outline:0!important}
+.focusable:focus{outline:3px solid rgba(255,255,255,.85)!important;outline-offset:2px;box-shadow:0 0 0 5px rgba(232,25,90,.6)!important;border-color:var(--accent2)!important}
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:6px 14px;gap:8px;min-height:46px;flex-wrap:wrap}
+.logo{font-size:17px;font-weight:800;white-space:nowrap;flex-shrink:0}
+.logo span{color:var(--accent)}
+.time-wrap{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.time-wrap::-webkit-scrollbar{display:none}
+.time-btn{flex-shrink:0;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--muted);white-space:nowrap;transition:all .15s;min-height:30px}
+.time-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.search-form{display:flex;gap:3px;flex-shrink:0}
+.search-form input{width:120px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:11px;padding:5px 8px;outline:0}
+.search-form input:focus{border-color:var(--accent)}
+.search-form button{background:var(--accent);color:#fff;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;min-height:30px}
+/* Category row */
+.catbar{position:sticky;top:46px;z-index:99;background:rgba(0,0,0,.75);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);padding:5px 14px}
+.cat-scroll{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-btn{flex-shrink:0;padding:4px 11px;border-radius:999px;font-size:11px;font-weight:600;background:var(--surface2);border:1px solid var(--border);color:var(--muted);white-space:nowrap;transition:all .15s;min-height:28px}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* Page */
+.page-wrap{max-width:1400px;margin:0 auto;padding:10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding-bottom:16px}
+.card{background:var(--surface);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.card-thumb{display:block;position:relative;aspect-ratio:9/16;overflow:hidden;background:var(--surface2)}
+.card-thumb img{width:100%;height:100%;object-fit:cover}
+.badge-time{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.8);color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;font-family:monospace}
+.card-body{padding:6px 8px}
+.card-title{font-size:11px;font-weight:500;color:#ccc;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.status{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px}
+.loading{text-align:center;padding:30px;color:var(--muted)}
+.more-wrap{text-align:center;padding:12px 0}
+.more-btn{padding:8px 30px;border-radius:999px;font-size:13px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text);min-height:36px}
+.more-btn:focus,.more-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+/* TV mode */
+html.tv-mode .grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+html.tv-mode .card-title{font-size:13px}
+</style>
+</head><body>
+
+<div class=topbar>
+  <div class=logo>OTC<span>.</span></div>
+  <div class=time-wrap id=timeWrap></div>
+  <form class=search-form id=searchForm onsubmit="return doSearch(event)">
+    <input id=searchInput class=focusable type=search placeholder="搜索">
+    <button class=focusable type=submit>搜</button>
+  </form>
+</div>
+
+<div class=catbar>
+  <div class=cat-scroll id=catScroll></div>
+</div>
+
+<div class=page-wrap>
+  <div class=grid id=grid></div>
+  <div class=more-wrap id=moreWrap style=display:none>
+    <button class="more-btn focusable" id=moreBtn>加载更多</button>
+  </div>
+</div>
+
+<script>
+(function(){var p=[window.Element&&Element.prototype,window.Document&&Document.prototype,window.DocumentFragment&&DocumentFragment.prototype];for(var i=0;i<p.length;i++){var po=p[i];if(!po||po.replaceChildren)continue;po.replaceChildren=function(){while(this.firstChild)this.removeChild(this.firstChild);for(var j=0;j<arguments.length;j++){var c=arguments[j];this.appendChild(c&&c.nodeType?c:document.createTextNode(String(c)))}}}})();
+
+var fm=window.fm||window.fongmi||{};
+var fmb=window.fongmiBridge;
+function isTVSDK(){return fmb&&(fm.device?true:false)}
+if(isTVSDK()) document.documentElement.classList.add('tv-mode');
+if(fmb&&!fm.req) window.addEventListener('fmsdk',function(){fm=window.fm||window.fongmi||{};document.documentElement.classList.add('tv-mode')});
+
+var BASE='https://video.otcav.xyz';
+var LANG='/zh-CN';
+var CATS={
+  '':'全部分类','gay':'男同・男娘','anime':'动漫/二次元','lolita':'少女系',
+  'shaved':'光滑','kyonyu':'丰胸','jk':'女高中生','beautiful-girl':'美少女',
+  'small-breasts':'小胸','sm':'SM','masturbation':'自我表达','hamedori':'自摄',
+  'female-pervert':'大胆女性','personal-filming':'私人拍摄','outdoor':'户外',
+  'big-sister':'姐姐','incest':'家庭主题','married-woman':'已婚女性','orgy':'群体',
+  'fellatio':'口部艺术','bukkake':'泼洒艺术'
+};
+var TIMES={'':'今日','weekly':'本周','monthly':'本月','all':'全部'};
+var STATE={cat:'',time:'',page:1,loading:false,allItems:[],hasMore:true};
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function htmlFetch(url){
+  if(fm.req) return fm.req(url,{method:'GET',responseType:'text',timeout:15});
+  return fetch(url,{headers:{'User-Agent':'Mozilla/5.0'}}).then(function(r){return r.text()}).then(function(t){return{ok:true,body:t}});
+}
+
+function decodeVideoUrl(b){
+  try{return decodeURIComponent(atob(b))}catch(e){return b}
+}
+
+function directThumb(src){
+  if(!src) return '';
+  var m=src.match(/url=([^&]+)/);
+  if(m) try{return decodeURIComponent(m[1])}catch(e){return m[1]}
+  return src.indexOf('//')>0?src: (src[0]==='/'?BASE+src:src);
+}
+
+function parseItems(html){
+  var items=[];
+  var gs=html.indexOf('class="grid"');
+  if(gs<0) gs=html.indexOf('class=grid');
+  if(gs<0) return items;
+  var ge=html.indexOf('class="pagination"',gs); if(ge<0) ge=html.indexOf('class=pagination',gs);
+  if(ge<0) ge=html.indexOf('empty-state',gs); if(ge<0) ge=html.length;
+  var gh=html.slice(gs,ge);
+  var parts=gh.split('<div class="card"');
+  for(var i=1;i<parts.length;i++){
+    var b=parts[i]; var ei=b.indexOf('<div class="card"'); var bl=ei>0?b.slice(0,ei):b;
+    var vm=bl.match(/href="\/play\?v=([^"]+)"/); if(!vm) continue;
+    var bv=vm[1]; var tm=bl.match(/src="([^"]+)"/); var th=tm?directThumb(tm[1]):'';
+    var ti=''; var am=bl.match(/alt="([^"]+)"/); if(am&&am[1]!=='No+Image') ti=am[1];
+    if(!ti){var hm=bl.match(/card-title">([^<]+)</); if(hm) ti=hm[1].trim();}
+    if(!ti) ti='视频';
+    var vu=decodeVideoUrl(bv); var dm=bl.match(/badge-time">([^<]+)</); var dg=dm?dm[1]:'';
+    items.push({id:'v'+i,title:ti,thumb:th,url:vu,badge:dg});
+  }
+  return items;
+}
+
+function renderGrid(items,append){
+  var g=$('grid'); if(!append) g.innerHTML='';
+  if(!items||!items.length){if(!append) g.innerHTML='<div class=status>暂无内容</div>';return}
+  items.forEach(function(it){
+    var c=document.createElement('div'); c.className='card focusable'; c.tabIndex=0;
+    c.innerHTML='<div class=card-thumb><img src="'+(it.thumb||'')+'" alt="" loading=lazy'+(it.badge?'><span class=badge-time>'+esc(it.badge)+'</span>':'>')+
+    '</div><div class=card-body><div class=card-title>'+esc(it.title)+'</div></div>';
+    c.addEventListener('click',function(){playVideo(it)});
+    c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();playVideo(it)}});
+    g.appendChild(c);
+  });
+}
+
+function playVideo(it){
+  var u=it.url; if(u.indexOf('http')!==0) return;
+  if(fm.play) fm.play(u,it.title,{referer:BASE}); else window.open(u,'_blank');
+}
+
+function renderNav(){
+  var tw=$('timeWrap');tw.replaceChildren();
+  Object.keys(TIMES).forEach(function(k){
+    var b=document.createElement('button'); b.className='time-btn focusable'+(k===STATE.time?' active':'');
+    b.textContent=TIMES[k]; b.addEventListener('click',function(){switchTo('time',k)}); tw.appendChild(b);
+  });
+  var cs=$('catScroll');cs.replaceChildren();
+  Object.keys(CATS).forEach(function(k){
+    var b=document.createElement('button'); b.className='cat-btn focusable'+(k===STATE.cat?' active':'');
+    b.textContent=CATS[k]; b.addEventListener('click',function(){switchTo('cat',k)}); cs.appendChild(b);
+  });
+}
+
+function switchTo(type,val){
+  if(type==='time'){STATE.time=val;STATE.cat=''}else{STATE.cat=val;STATE.time=''}
+  STATE.page=1;STATE.allItems=[];STATE.hasMore=true; loadList();
+}
+
+function loadList(){
+  if(STATE.loading) return;
+  STATE.loading=true; $('grid').innerHTML='<div class=loading>加载中…</div>'; $('moreWrap').style.display='none';
+  renderNav();
+  var p=LANG+'/';
+  if(STATE.time) p=LANG+'/'+STATE.time+'/';
+  if(STATE.cat) p=LANG+'/category/'+STATE.cat+'/';
+  if(STATE.page>1) p+=p.indexOf('?')>0?'&page=':'?page='+STATE.page;
+  htmlFetch(BASE+p).then(function(r){
+    STATE.loading=false;
+    if(!r.ok||!r.body){if(!STATE.allItems.length)$('grid').innerHTML='<div class=status>加载失败</div>';return}
+    var its=parseItems(r.body); STATE.allItems=STATE.allItems.concat(its);
+    STATE.hasMore=its.length>=20; renderGrid(STATE.allItems,false);
+    $('moreWrap').style.display=STATE.hasMore?'block':'none';
+    if(isTVSDK()) setTimeout(function(){var f=$('grid').querySelector('.card');if(f) setTimeout(function(){f.focus()},100)},200);
+  }).catch(function(e){STATE.loading=false;if(!STATE.allItems.length)$('grid').innerHTML='<div class=status>加载失败</div>'});
+}
+
+function doSearch(e){
+  e.preventDefault();
+  var q=$('searchInput').value.trim(); if(!q) return false;
+  STATE.page=1;STATE.allItems=[]; $('grid').innerHTML='<div class=loading>搜索中…</div>';
+  htmlFetch(BASE+LANG+'/?q='+encodeURIComponent(q)).then(function(r){
+    if(!r.ok||!r.body){$('grid').innerHTML='<div class=status>无结果</div>';return}
+    var its=parseItems(r.body); STATE.allItems=its; STATE.hasMore=false; renderGrid(its,false); $('moreWrap').style.display='none';
+  }).catch(function(){$('grid').innerHTML='<div class=status>搜索失败</div>'});
+  return false;
+}
+
+$('moreBtn').addEventListener('click',function(){STATE.page++;loadList()});
+renderNav();
+loadList();
+</script>
+</body></html>

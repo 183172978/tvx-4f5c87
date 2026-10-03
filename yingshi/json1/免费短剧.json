@@ -1,0 +1,17 @@
+{
+    "搜索url": "https://20.90kan.cc/search.php?q={wd}&page={pg}",
+    "搜索数组": "class=\"img-modbox&&/a>",
+    "搜索标题": "alt=\"&&\"",
+    "搜索副标题": "ri-time-line\"></i>&&<",
+    "搜索图片": "data-original=\"&&\"",
+    "搜索链接": "href=\"&&\"",
+    "线路数组": "downtab-item*\">&&/small>",
+    "线路标题": "网盘推送",
+    "播放数组": "<div class=\"content&&</a>",
+    "播放列表": "<a&&target",
+    "播放标题": "href=\"&&\"",
+    "播放链接": "href=\"&&\"[替换:http>>push://http]",
+    "免嗅": "0",
+    "分类url": "https://20.90kan.cc/?cate={cateId}&page={catePg}[https://20.90kan.cc/?cate={cateId}]",
+    "分类": "最近更新$2#短剧大全$1#预告短剧$3"
+}

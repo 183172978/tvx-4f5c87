@@ -1,0 +1,13 @@
+{
+    "请求头": "User-Agent$MOBILE_UA",
+    "编码": "UTF-8",
+    "数组": "p:.thumbnail",
+    "链接": "p:->href",
+    "图片": "p:->data-src",
+    "标题": "p:->alt",
+    "副标题": "p:.bg-opacity-75->text[含序号:2]",
+    "跳转播放链接": "var player_*\"url\":\"&&\"",
+    "搜索url": "https://missav.app/vodsearch/{wd}----------{pg}---/",
+    "分类url": "https://missav.app/vodtype/{cateId}-{catePg}/;;z",
+    "分类": "日本中字$28#国产精品$20#人妻$21#无码精品$22#欧美精品$23#动漫精品$24#综合三级$25"
+}

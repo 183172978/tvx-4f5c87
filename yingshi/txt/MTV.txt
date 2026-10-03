@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IP数据查询</title>
+  <script type="module" crossorigin src="/assets/index-Ca-O3WNk.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-BhFVKRHx.css">
+</head>
+<script charset="utf-8" src="https://map.qq.com/api/gljs?v=2.exp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77"></script>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
