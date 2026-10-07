@@ -4,6 +4,15 @@
  "warningText": "",
  "sites": [
   {
+   "key": "fh采集",
+   "name": "fh采集【密】",
+   "type": 1,
+   "api": "http://fhapi9.com/api.php/provide/vod/",
+   "searchable": 1,
+   "quickSearch": 1,
+   "filterable": 1
+  },
+  {
    "key": "豆瓣[官]_2.js",
    "name": "💥豆瓣💥",
    "type": 3,
