@@ -4591,7 +4591,7 @@
   },
   {
    "key": "白嫖资源",
-   "name": "💞白嫖资源💞",
+   "name": "💞白嫖资源💞【密】",
    "type": 1,
    "api": "https://www.kxgav.com/api/json.php",
    "changeable": 1
@@ -6144,8 +6144,8 @@
   },
   {
    "key": "大地资源",
-   "name": "💞大地资源💞",
-   "type": 0,
+   "name": "💞大地资源💞【密】",
+   "type": 1,
    "api": "https://dadiapi.com/api.php",
    "searchable": 0,
    "quickSearch": 0
